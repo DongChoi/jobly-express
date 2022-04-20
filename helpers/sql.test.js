@@ -1,8 +1,11 @@
+const { fail } = require("assert");
 const { sqlForPartialUpdate } = require("./sql");
+const { BadRequestError } = require("../expressError");
+
 
 /**TODO: make better names */
 describe("successfully returns partial info", function () {
-  test("take data and returns correct query and values", function () {
+  test("take data and returns correct data", function () {
     const data = { firstName: "Aliya", age: 32 };
     const jsToSql = {
       firstName: "first_name",
@@ -15,4 +18,22 @@ describe("successfully returns partial info", function () {
       values: ["Aliya", 32],
     });
   });
-});
+
+  test("bad request with no data", function () {
+    try{
+    const data = {};
+    const jsToSql = {
+      firstName: "first_name",
+      lastName: "last_name",
+      isAdmin: "is_admin",
+      };
+    const results = sqlForPartialUpdate(data, jsToSql);
+    fail();
+    }
+    catch (err){
+      expect(err instanceof BadRequestError ).toBeTruthy();
+    }
+    });
+
+  });
+
