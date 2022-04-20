@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForFilter } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -142,6 +142,42 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
+
+/** Filter companies with `data`.
+   *
+   * This allow API users to filter the results based on optional filtering criteria, any or all of which can be passed in the query string:.
+   *
+   * Data can include: {name, minEmployees, maxEmployees}
+   *
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   *
+   * Throws NotFoundError if not found.
+   */
+
+  // data = {"name":"new name", "minEmployees":10, "maxEmployees":20}
+
+ static async filterAll(data) {
+  const { setWheres,values } = sqlForFilter(
+      data,
+      {
+        minEmployees: 'num_employees > ',
+        maxEmployees: 'num_employees < ',
+        name: 'name ILIKE '
+      });
+
+  const querySql = `
+    SELECT handle, name, description, num_employees, logo_url
+    FROM companies
+    WHERE ${setWheres}
+    ;`;
+  const results = await db.query(querySql, [...values]);
+  const companies = results.rows;
+
+  if (!companies) throw new NotFoundError(`No company that matches filter`);
+
+  return companies;
+}
+
 }
 
 

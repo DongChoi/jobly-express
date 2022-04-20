@@ -54,8 +54,8 @@ router.get("/", async function (req, res, next) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
-    if ((req.query.minEmployees && req.query.maxEmployees) &&
-    (req.query.minEmployees > req.query.maxEmployees)) {
+    if ((+req.query.minEmployees && +req.query.maxEmployees) &&
+    (+req.query.minEmployees > +req.query.maxEmployees)) {
       throw new BadRequestError("Min employees cannot be greater than max employees.")
     }
 
