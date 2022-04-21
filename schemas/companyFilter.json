@@ -13,7 +13,7 @@
         "minimum": 0
       },
       "maxEmployees": {
-        "type": "string",
+        "type": "integer",
         "minimum": 0
       }
     },

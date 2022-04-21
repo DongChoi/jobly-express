@@ -29,25 +29,36 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 }
 
 
-/** TODO: Filters * */
+/** Accepts object with fields to be searched,
+ *  and returns object formatted for SQL WHERE clause.
+ *
+ * @param {Object} dataToSearch - user input object
+ * @param {Object} jsToSql - SQL operation statements
+ *
+ * @return {Object} - setWheres: query string of keys with index placeholder
+ * - values: array of values filter
+ * */
 
- function sqlForFilter(dataToUpdate, jsToSql) {
-  const keys = Object.keys(dataToUpdate);     // ["name","minEmployees","maxEmployees"]
-  if (keys.length === 0) throw new BadRequestError("No data");
+function sqlForFilter(dataToSearch, jsToSql) {
+  let setWheres = ""
+  const keys = Object.keys(dataToSearch);     // ["name","minEmployees","maxEmployees"]
 
-  // {name:"new", minEmployees: 5, maxEmployees : 10} =>
-  // ['"name ILIKE" $1, "num_employees>" $2', '"num_employees <" $3']
-  const wheres = keys.map(
-    (colName, idx) => `${jsToSql[colName] || colName}$${idx + 1}`
-  );
+  if (keys.length > 0) {
+    // {name:"new", minEmployees: 5, maxEmployees : 10} =>
+    // ['name ILIKE $1', 'num_employees > $2', 'num_employees < $3']
+    wheres = keys.map(
+      (colName, idx) => `${jsToSql[colName] || ' '}$${idx + 1}`
+    );
+    setWheres = "WHERE "+wheres.join(" AND ")
 
-  if (dataToUpdate.name) {
-    dataToUpdate.name = `%${dataToUpdate.name}%`;
+    if (dataToSearch.name) {
+      dataToSearch.name = `%${dataToSearch.name}%`;
+    }
   }
 
   return {
-    setWheres: wheres.join(" AND "),     // '"num_employees">$1' AND '"num_employees"<$2'
-    values: Object.values(dataToUpdate),  // [5,10]
+    setWheres,     // '"num_employees">$1' AND '"num_employees"<$2'
+    values: Object.values(dataToSearch),  // [5,10]
   };
 }
 

@@ -49,21 +49,20 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
+  //  TODO: remove : return { setWheres, values }
+
   static async findAll(data) {
-    let companiesRes;
-    if (Object.keys(data).length !== 0) {
-      companiesRes = await this.filterAll(data);
-    } else {
-      companiesRes = await db.query(
+    const {setWheres, values} = await this._filterAll(data);
+    const companiesRes = await db.query(
         `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
-           ORDER BY name`
+           ${setWheres}
+           ORDER BY name`,[...values]
       );
-    }
     return companiesRes.rows;
   }
 
@@ -158,26 +157,19 @@ class Company {
   // data = {"name":"new name", "minEmployees":10, "maxEmployees":20}
 
   static async _filterAll(data) {
-    console.log("filterAll running -----------req.data", data);
-    //validate dataher instead
+
+    if ((data.minEmployees && data.maxEmployees) &&
+      (data.minEmployees > data.maxEmployees)) {
+      throw new BadRequestError("Min employees cannot be greater than max employees.");
+    }
+
     const { setWheres, values } = sqlForFilter(data, {
       minEmployees: "num_employees > ",
       maxEmployees: "num_employees < ",
       name: "name ILIKE ",
     });
 
-    const querySql = `
-    SELECT handle, name, description, num_employees As "numEmployees", logo_url
-     AS "logoUrl"
-    FROM companies
-    WHERE ${setWheres}
-    ORDER BY name
-    ;`;
-    const results = await db.query(querySql, [...values]);
-
-    if (!results) throw new NotFoundError(`No company that matches filter`);
-
-    return results;
+    return { setWheres, values }
   }
 }
 
