@@ -15,7 +15,6 @@ const companyFilterSchema = require("../schemas/companyFilter.json");
 
 const router = new express.Router();
 
-
 /** POST / { company } =>  { company }
  *
  * company should be { handle, name, description, numEmployees, logoUrl }
@@ -28,7 +27,7 @@ const router = new express.Router();
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, companyNewSchema);
   if (!validator.valid) {
-    const errs = validator.errors.map(e => e.stack);
+    const errs = validator.errors.map((e) => e.stack);
     throw new BadRequestError(errs);
   }
 
@@ -48,23 +47,25 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  if (req.query){
+  if (req.query) {
     const validator = jsonschema.validate(req.query, companyFilterSchema);
-    if (!validator.valid){
-      const errs = validator.errors.map(e => e.stack);
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
-    if ((+req.query.minEmployees && +req.query.maxEmployees) &&
-    (+req.query.minEmployees > +req.query.maxEmployees)) {
-      throw new BadRequestError("Min employees cannot be greater than max employees.")
+    if (
+      +req.query.minEmployees &&
+      +req.query.maxEmployees &&
+      +req.query.minEmployees > +req.query.maxEmployees
+    ) {
+      throw new BadRequestError(
+        "Min employees cannot be greater than max employees."
+      );
     }
 
     //TODO: filterAll() method
-    const companies = await Company.filterAll(req.query);
-    return res.json({ companies });
   }
-
-  const companies = await Company.findAll();
+  const companies = await Company.findAll(req.query);
   return res.json({ companies });
 });
 
@@ -95,7 +96,7 @@ router.get("/:handle", async function (req, res, next) {
 router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, companyUpdateSchema);
   if (!validator.valid) {
-    const errs = validator.errors.map(e => e.stack);
+    const errs = validator.errors.map((e) => e.stack);
     throw new BadRequestError(errs);
   }
 
@@ -112,6 +113,5 @@ router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
   await Company.remove(req.params.handle);
   return res.json({ deleted: req.params.handle });
 });
-
 
 module.exports = router;

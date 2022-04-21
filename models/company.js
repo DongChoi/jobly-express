@@ -18,16 +18,17 @@ class Company {
 
   static async create({ handle, name, description, numEmployees, logoUrl }) {
     const duplicateCheck = await db.query(
-        `SELECT handle
+      `SELECT handle
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]
+    );
 
     if (duplicateCheck.rows[0])
       throw new BadRequestError(`Duplicate company: ${handle}`);
 
     const result = await db.query(
-        `INSERT INTO companies(
+      `INSERT INTO companies(
           handle,
           name,
           description,
@@ -36,13 +37,7 @@ class Company {
            VALUES
              ($1, $2, $3, $4, $5)
            RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`,
-        [
-          handle,
-          name,
-          description,
-          numEmployees,
-          logoUrl,
-        ],
+      [handle, name, description, numEmployees, logoUrl]
     );
     const company = result.rows[0];
 
@@ -54,15 +49,21 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
+  static async findAll(data) {
+    let companiesRes;
+    if (Object.keys(data).length !== 0) {
+      companiesRes = await this.filterAll(data);
+    } else {
+      companiesRes = await db.query(
         `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
-           ORDER BY name`);
+           ORDER BY name`
+      );
+    }
     return companiesRes.rows;
   }
 
@@ -76,14 +77,15 @@ class Company {
 
   static async get(handle) {
     const companyRes = await db.query(
-        `SELECT handle,
+      `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]
+    );
 
     const company = companyRes.rows[0];
 
@@ -105,12 +107,10 @@ class Company {
    */
 
   static async update(handle, data) {
-    const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      numEmployees: "num_employees",
+      logoUrl: "logo_url",
+    });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `
@@ -133,17 +133,18 @@ class Company {
 
   static async remove(handle) {
     const result = await db.query(
-        `DELETE
+      `DELETE
            FROM companies
            WHERE handle = $1
            RETURNING handle`,
-        [handle]);
+      [handle]
+    );
     const company = result.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
 
-/** Filter companies with `data`.
+  /** Filter companies with `data`.
    *
    * This allow API users to filter the results based on optional filtering criteria, any or all of which can be passed in the query string:.
    *
@@ -156,29 +157,28 @@ class Company {
 
   // data = {"name":"new name", "minEmployees":10, "maxEmployees":20}
 
- static async filterAll(data) {
-  const { setWheres,values } = sqlForFilter(
-      data,
-      {
-        minEmployees: 'num_employees > ',
-        maxEmployees: 'num_employees < ',
-        name: 'name ILIKE '
-      });
+  static async _filterAll(data) {
+    console.log("filterAll running -----------req.data", data);
+    //validate dataher instead
+    const { setWheres, values } = sqlForFilter(data, {
+      minEmployees: "num_employees > ",
+      maxEmployees: "num_employees < ",
+      name: "name ILIKE ",
+    });
 
-  const querySql = `
-    SELECT handle, name, description, num_employees, logo_url
+    const querySql = `
+    SELECT handle, name, description, num_employees As "numEmployees", logo_url
+     AS "logoUrl"
     FROM companies
     WHERE ${setWheres}
+    ORDER BY name
     ;`;
-  const results = await db.query(querySql, [...values]);
-  const companies = results.rows;
+    const results = await db.query(querySql, [...values]);
 
-  if (!companies) throw new NotFoundError(`No company that matches filter`);
+    if (!results) throw new NotFoundError(`No company that matches filter`);
 
-  return companies;
+    return results;
+  }
 }
-
-}
-
 
 module.exports = Company;
