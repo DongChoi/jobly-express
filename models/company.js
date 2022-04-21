@@ -49,7 +49,6 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  //  TODO: remove : return { setWheres, values }
 
   static async findAll(data) {
     const {setWheres, values} = await this._filterAll(data);
@@ -164,8 +163,8 @@ class Company {
     }
 
     const { setWheres, values } = sqlForFilter(data, {
-      minEmployees: "num_employees > ",
-      maxEmployees: "num_employees < ",
+      minEmployees: "num_employees >= ",
+      maxEmployees: "num_employees <= ",
       name: "name ILIKE ",
     });
 

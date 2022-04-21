@@ -91,6 +91,7 @@ describe("findAll", function () {
   test("works: with filter", async function () {
     let compFilterWithName = await Company.findAll({ name: "c1" });
     let compFilterWithMin = await Company.findAll({ minEmployees: "2" });
+
     expect(compFilterWithName).toEqual([
       {
         handle: "c1",
@@ -102,6 +103,13 @@ describe("findAll", function () {
     ]);
 
     expect(compFilterWithMin).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
       {
         handle: "c3",
         name: "C3",
@@ -185,15 +193,15 @@ describe("update", function () {
     });
 
     const result = await Company.get("c1");
-    expect(result.rows).toEqual([
+    expect(result).toEqual(
       {
         handle: "c1",
         name: "New",
         description: "New Description",
-        num_employees: null,
-        logo_url: null,
+        numEmployees: null,
+        logoUrl: null,
       },
-    ]);
+    );
   });
 
   test("not found if no such company", async function () {
