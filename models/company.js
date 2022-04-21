@@ -49,19 +49,19 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-
   static async findAll(data) {
-    const {setWheres, values} = await this._filterAll(data);
+    const { setWheres, values } = await this._filterAll(data);
     const companiesRes = await db.query(
-        `SELECT handle,
+      `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
            ${setWheres}
-           ORDER BY name`,[...values]
-      );
+           ORDER BY name`,
+      [...values]
+    );
     return companiesRes.rows;
   }
 
@@ -156,10 +156,14 @@ class Company {
   // data = {"name":"new name", "minEmployees":10, "maxEmployees":20}
 
   static async _filterAll(data) {
-
-    if ((data.minEmployees && data.maxEmployees) &&
-      (data.minEmployees > data.maxEmployees)) {
-      throw new BadRequestError("Min employees cannot be greater than max employees.");
+    if (
+      data.minEmployees &&
+      data.maxEmployees &&
+      data.minEmployees > data.maxEmployees
+    ) {
+      throw new BadRequestError(
+        "Min employees cannot be greater than max employees."
+      );
     }
 
     const { setWheres, values } = sqlForFilter(data, {
@@ -168,7 +172,7 @@ class Company {
       name: "name ILIKE ",
     });
 
-    return { setWheres, values }
+    return { setWheres, values };
   }
 }
 

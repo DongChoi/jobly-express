@@ -14,7 +14,7 @@ const { BadRequestError } = require("../expressError");
  * */
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
-  const keys = Object.keys(dataToUpdate);   // [firstName, email]
+  const keys = Object.keys(dataToUpdate); // [firstName, email]
   if (keys.length === 0) throw new BadRequestError("No data");
 
   // {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
@@ -23,11 +23,10 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   );
 
   return {
-    setCols: cols.join(", "),      // '"first_name"=$1,"age"=$2'
-    values: Object.values(dataToUpdate),  // ['Aliya',32]
+    setCols: cols.join(", "), // '"first_name"=$1,"age"=$2'
+    values: Object.values(dataToUpdate), // ['Aliya',32]
   };
 }
-
 
 /** Accepts object with fields to be searched,
  *  and returns object formatted for SQL WHERE clause.
@@ -40,16 +39,16 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
  * */
 
 function sqlForFilter(dataToSearch, jsToSql) {
-  let setWheres = ""
-  const keys = Object.keys(dataToSearch);     // ["name","minEmployees","maxEmployees"]
+  let setWheres = "";
+  const keys = Object.keys(dataToSearch); // ["name","minEmployees","maxEmployees"]
 
   if (keys.length > 0) {
     // {name:"new", minEmployees: 5, maxEmployees : 10} =>
     // ['name ILIKE $1', 'num_employees > $2', 'num_employees < $3']
     wheres = keys.map(
-      (colName, idx) => `${jsToSql[colName] || ' '}$${idx + 1}`
+      (colName, idx) => `${jsToSql[colName] || " "}$${idx + 1}`
     );
-    setWheres = "WHERE "+wheres.join(" AND ")
+    setWheres = "WHERE " + wheres.join(" AND ");
 
     if (dataToSearch.name) {
       dataToSearch.name = `%${dataToSearch.name}%`;
@@ -57,8 +56,8 @@ function sqlForFilter(dataToSearch, jsToSql) {
   }
 
   return {
-    setWheres,     // '"num_employees">$1' AND '"num_employees"<$2'
-    values: Object.values(dataToSearch),  // [5,10]
+    setWheres, // '"num_employees">$1' AND '"num_employees"<$2'
+    values: Object.values(dataToSearch), // [5,10]
   };
 }
 

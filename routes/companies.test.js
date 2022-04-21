@@ -11,6 +11,7 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  admin1Token,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -29,15 +30,30 @@ describe("POST /companies", function () {
     numEmployees: 10,
   };
 
-  test("ok for users", async function () {
+  test("ok for admin", async function () {
     const resp = await request(app)
       .post("/companies")
       .send(newCompany)
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       company: newCompany,
     });
+  });
+
+  test("does not work for user", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompany)
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body.error.message[0]).toEqual("Forbidden");
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app).post("/companies").send(newCompany);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body.error.message).toEqual("Unauthorized");
   });
 
   test("bad request with missing data", async function () {
@@ -47,7 +63,7 @@ describe("POST /companies", function () {
         handle: "new",
         numEmployees: 10,
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
     //test the body as well on 62 too
   });
@@ -59,7 +75,7 @@ describe("POST /companies", function () {
         ...newCompany,
         logoUrl: "not-a-url",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
@@ -95,7 +111,7 @@ describe("GET /companies", function () {
       ],
     });
   });
-  //best to have rigorous tests for models than routes
+  //tip: best to have rigorous tests for models than routes
   test("filters companies", async function () {
     const respWithName = await request(app).get("/companies/?name=C1");
     const respWithMin = await request(app).get("/companies/?minEmployees=2");
@@ -114,7 +130,7 @@ describe("GET /companies", function () {
         },
       ],
     });
-    console.log(respWithMin.body)
+    console.log(respWithMin.body);
     expect(respWithMin.body).toEqual({
       companies: [
         {
@@ -162,6 +178,16 @@ describe("GET /companies", function () {
         },
       ],
     });
+    //question: what is a bearer?
+  });
+
+  test("throws correst handler", async function () {
+    const resp = await request(app).get("/companies/?maxEmployees=akdj");
+
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message[0]).toEqual(
+      "instance.maxEmployees is not of a type(s) integer"
+    );
   });
 
   test("fails: test next() handler", async function () {
@@ -214,13 +240,25 @@ describe("GET /companies/:handle", function () {
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  test("works for users", async function () {
+  /**UPDATING TESTS *****************************************/
+  test("does not work for user", async function () {
     const resp = await request(app)
       .patch(`/companies/c1`)
       .send({
         name: "C1-new",
       })
       .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body.error.message[0]).toEqual("Forbidden");
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("works for admin", async function () {
+    const resp = await request(app)
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      })
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
@@ -230,6 +268,7 @@ describe("PATCH /companies/:handle", function () {
         logoUrl: "http://c1.img",
       },
     });
+    expect(resp.statusCode).toEqual(200);
   });
 
   test("unauth for anon", async function () {
@@ -246,7 +285,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         name: "new nope",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -256,7 +295,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         handle: "c1-new",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -266,7 +305,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         logoUrl: "not-a-url",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
@@ -274,22 +313,38 @@ describe("PATCH /companies/:handle", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  // test("works for users", async function () {
+  //   const resp = await request(app)
+  //     .delete(`/companies/c1`)
+  //     .set("authorization", `Bearer ${u1Token}`);
+  //   expect(resp.body).toEqual({ deleted: "c1" });
+  // });
+  test("does not work for user", async function () {
     const resp = await request(app)
       .delete(`/companies/c1`)
       .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body.error.message[0]).toEqual("Forbidden");
+    expect(resp.statusCode).toEqual(403);
+  });
+
+  test("works for admin", async function () {
+    const resp = await request(app)
+      .delete(`/companies/c1`)
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.body).toEqual({ deleted: "c1" });
+    expect(resp.statusCode).toEqual(200);
   });
 
   test("unauth for anon", async function () {
     const resp = await request(app).delete(`/companies/c1`);
     expect(resp.statusCode).toEqual(401);
+    expect(resp.body.error.message).toEqual("Unauthorized");
   });
 
   test("not found for no such company", async function () {
     const resp = await request(app)
       .delete(`/companies/nope`)
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 });
