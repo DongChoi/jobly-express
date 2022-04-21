@@ -4,7 +4,7 @@
 
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../config");
-const { UnauthorizedError, ForbiddenError } = require("../expressError");
+const { UnauthorizedError } = require("../expressError");
 
 /** Middleware: Authenticate user.
  *
@@ -17,6 +17,7 @@ const { UnauthorizedError, ForbiddenError } = require("../expressError");
 function authenticateJWT(req, res, next) {
   try {
     const authHeader = req.headers && req.headers.authorization;
+    console.log("Authheader...",authHeader);
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
       res.locals.user = jwt.verify(token, SECRET_KEY);

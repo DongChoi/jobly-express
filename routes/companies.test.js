@@ -130,7 +130,7 @@ describe("GET /companies", function () {
         },
       ],
     });
-    console.log(respWithMin.body);
+
     expect(respWithMin.body).toEqual({
       companies: [
         {
