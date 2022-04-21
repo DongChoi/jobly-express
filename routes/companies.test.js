@@ -46,8 +46,8 @@ describe("POST /companies", function () {
       .post("/companies")
       .send(newCompany)
       .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body.error.message[0]).toEqual("Forbidden");
-    expect(resp.statusCode).toEqual(403);
+    expect(resp.body.error.message).toEqual("Unauthorized");
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
@@ -248,8 +248,8 @@ describe("PATCH /companies/:handle", function () {
         name: "C1-new",
       })
       .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body.error.message[0]).toEqual("Forbidden");
-    expect(resp.statusCode).toEqual(403);
+    expect(resp.body.error.message).toEqual("Unauthorized");
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("works for admin", async function () {
@@ -323,8 +323,8 @@ describe("DELETE /companies/:handle", function () {
     const resp = await request(app)
       .delete(`/companies/c1`)
       .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body.error.message[0]).toEqual("Forbidden");
-    expect(resp.statusCode).toEqual(403);
+    expect(resp.body.error.message).toEqual("Unauthorized");
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("works for admin", async function () {
