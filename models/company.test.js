@@ -192,6 +192,20 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "j1",
+          salary: 100000,
+          equity: "0.01",
+        },
+        {
+          id: expect.any(Number),
+          title: "j4",
+          salary: 400000,
+          equity: null,
+        },
+      ],
     });
   });
 
@@ -259,6 +273,20 @@ describe("update", function () {
       description: "New Description",
       numEmployees: null,
       logoUrl: null,
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "j1",
+          salary: 100000,
+          equity: "0.01",
+        },
+        {
+          id: expect.any(Number),
+          title: "j4",
+          salary: 400000,
+          equity: null,
+        },
+      ],
     });
   });
 
