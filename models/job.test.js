@@ -73,6 +73,13 @@ describe("findAll", function () {
         equity: 0.03,
         companyHandle: "c3",
       },
+      {
+        id: expect.any(Number),
+        title: "j4",
+        salary: 400000,
+        equity: null,
+        companyHandle: "c4",
+      },
     ]);
   });
 
@@ -100,65 +107,88 @@ describe("findAll", function () {
         equity: 0.03,
         companyHandle: "c3",
       },
+      {
+        id: expect.any(Number),
+        title: "j4",
+        salary: 400000,
+        equity: null,
+        companyHandle: "c4",
+      },
     ]);
   });
-  test("works: with maxSalary filter", async function () {
-    let jobs = await Company.findAll({ maxSalary: "2" });
+  test("works: with hasEquity filter", async function () {
+    let jobs1 = await Company.findAll({ hasEquity: "true" });
+    let jobs2 = await Company.findAll({ hasEquity: "false" });
 
-    expect(jobs).toEqual([
+    expect(jobs1).toEqual([
       {
-        handle: "c1",
-        name: "C1",
-        description: "Desc1",
-        numEmployees: 1,
-        logoUrl: "http://c1.img",
+        id: expect.any(Number),
+        title: "j1",
+        salary: 100000,
+        equity: 0.01,
+        companyHandle: "c1",
       },
       {
-        handle: "c2",
-        name: "C2",
-        description: "Desc2",
-        numEmployees: 2,
-        logoUrl: "http://c2.img",
+        id: expect.any(Number),
+        title: "j2",
+        salary: 200000,
+        equity: 0.02,
+        companyHandle: "c2",
+      },
+      {
+        id: expect.any(Number),
+        title: "j3",
+        salary: 300000,
+        equity: 0.03,
+        companyHandle: "c3",
+      },
+    ]);
+    expect(jobs2).toEqual([
+      {
+        id: expect.any(Number),
+        title: "j1",
+        salary: 100000,
+        equity: 0.01,
+        companyHandle: "c1",
+      },
+      {
+        id: expect.any(Number),
+        title: "j2",
+        salary: 200000,
+        equity: 0.02,
+        companyHandle: "c2",
+      },
+      {
+        id: expect.any(Number),
+        title: "j3",
+        salary: 300000,
+        equity: 0.03,
+        companyHandle: "c3",
+      },
+      {
+        id: expect.any(Number),
+        title: "j4",
+        salary: 400000,
+        equity: null,
+        companyHandle: "c4",
       },
     ]);
   });
   test("works: with all possible filters", async function () {
-    let companies = await Company.findAll({
-      name: "c",
-      maxEmployees: "2",
-      minEmployees: "1",
+    let jobs = await Job.findAll({
+      title: "j",
+      minSalary: "299999",
+      hasEquity: "true",
     });
-    expect(companies).toEqual([
+    expect(jobs).toEqual([
       {
-        handle: "c1",
-        name: "C1",
-        description: "Desc1",
-        numEmployees: 1,
-        logoUrl: "http://c1.img",
-      },
-      {
-        handle: "c2",
-        name: "C2",
-        description: "Desc2",
-        numEmployees: 2,
-        logoUrl: "http://c2.img",
+        id: expect.any(Number),
+        title: "j3",
+        salary: 300000,
+        equity: 0.03,
+        companyHandle: "c3",
       },
     ]);
-  });
-  test("Throws correct error and message", async function () {
-    try {
-      await Company.findAll({
-        name: "c",
-        maxEmployees: "1",
-        minEmployees: "2",
-      });
-      fail();
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-      expect(err.message).toEqual(
-        "Min employees cannot be greater than max employees."
-      );
-    }
   });
 });
 
@@ -166,7 +196,7 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let company = await Company.get("c1");
+    let job = await Company.get("c1");
     expect(company).toEqual({
       handle: "c1",
       name: "C1",
@@ -205,7 +235,7 @@ describe("update", function () {
 
     const result = await db.query(
       `SELECT handle, name, description, num_employees, logo_url
-           FROM companies
+           FROM jobs
            WHERE handle = 'c1'`
     );
     expect(result.rows).toEqual([
