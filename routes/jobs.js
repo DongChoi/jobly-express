@@ -49,14 +49,7 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
 router.get("/", async function (req, res, next) {
   const request = req.query;
   if (request) {
-    if (request.hasEquity && request.hasEquity.toLowerCase() === "false") {
-      delete request.hasEquity;
-    } else if (
-      request.hasEquity &&
-      request.hasEquity.toLowerCase() === "true"
-    ) {
-      request.hasEquity = true;
-    }
+    if (request.hasEquity) request.hasEquity = JSON.parse(request.hasEquity);
     if (request.minSalary) request.minSalary = Number(request.minSalary);
     const validator = jsonschema.validate(request, jobFilterSchema);
     if (!validator.valid) {

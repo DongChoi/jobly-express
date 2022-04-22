@@ -130,11 +130,11 @@ class Job {
 
   //{hasEquity : true, minSalary: 10000, title: engineer}
   static async _filterAll(data) {
-    //question: about booleans
-    if (data.hasEquity) {
-      data.hasEquity = 0;
-    }
-    console.log(data);
+    if (!data.hasEquity) {
+      delete data.hasEquity;
+    } else if (data.hasEquity)
+      { data.hasEquity = 0 }
+
     const { setWheres, values } = sqlForFilter(data, {
       minSalary: "salary >= ",
       hasEquity: "equity > ",
