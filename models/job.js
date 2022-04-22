@@ -101,7 +101,11 @@ class Job {
       UPDATE jobs
       SET ${setCols}
         WHERE id = ${idVarIdx}
-        RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`;
+        RETURNING id,
+        title,
+        salary,
+        equity,
+        company_handle AS "companyHandle"`;
     const result = await db.query(querySql, [...values, id]);
     const job = result.rows[0];
 
@@ -125,15 +129,16 @@ class Job {
     );
     const job = result.rows[0];
 
-    if (!job) throw new NotFoundError(`No company: ${id}`);
+    if (!job) throw new NotFoundError(`No job by id: ${id}`);
   }
 
   //{hasEquity : true, minSalary: 10000, title: engineer}
   static async _filterAll(data) {
     if (!data.hasEquity) {
       delete data.hasEquity;
-    } else if (data.hasEquity)
-      { data.hasEquity = 0 }
+    } else if (data.hasEquity) {
+      data.hasEquity = 0;
+    }
 
     const { setWheres, values } = sqlForFilter(data, {
       minSalary: "salary >= ",
