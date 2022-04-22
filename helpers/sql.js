@@ -40,7 +40,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 
 function sqlForFilter(dataToSearch, jsToSql) {
   let setWheres = "";
-  const keys = Object.keys(dataToSearch); // ["name","minEmployees","maxEmployees"]
+  const keys = Object.keys(dataToSearch);
 
   if (keys.length > 0) {
     // {name:"new", minEmployees: 5, maxEmployees : 10} =>
@@ -52,6 +52,9 @@ function sqlForFilter(dataToSearch, jsToSql) {
 
     if (dataToSearch.name) {
       dataToSearch.name = `%${dataToSearch.name}%`;
+    }
+    if (dataToSearch.title) {
+      dataToSearch.title = `%${dataToSearch.title}%`;
     }
   }
 

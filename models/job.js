@@ -2,11 +2,12 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
+const { sqlForFilter, sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for jobs. */
 
 class Job {
-/** Create a job (from data), update db, return new job data.
+  /** Create a job (from data), update db, return new job data.
    *
    * data should be { title, salary, equity, companyHandle }
    *
@@ -15,10 +16,9 @@ class Job {
    * Throws BadRequestError if company already in database.
    * */
 
- static async create({ title, salary, equity, companyHandle }) {
-
-  const result = await db.query(
-    `INSERT INTO jobs(
+  static async create({ title, salary, equity, companyHandle }) {
+    const result = await db.query(
+      `INSERT INTO jobs(
       title,
       salary,
       equity,
@@ -27,57 +27,59 @@ class Job {
       VALUES
       ($1, $2, $3, $4)
       RETURNING id, title, salary, equity, company_handle AS "companyHandle"`,
-    [title, salary, equity, companyHandle]
-  );
-  const job = result.rows[0];
+      [title, salary, equity, companyHandle]
+    );
+    const job = result.rows[0];
 
-  return job;
-}
+    return job;
+  }
 
-/** Find all jobs.
+  /** Find all jobs.
    *
    * Returns [{ id, title, salary, equity, companyHandle }, ...]
    * */
 
- static async findAll(data) {
-  const jobsRes = await db.query(
-    `SELECT id,
-            title,
-            salary,
-            equity,
-            company_handle AS "companyHandle"
-    FROM jobs
-    ORDER BY id`
-  );
-  return jobsRes.rows;
-}
+  static async findAll(data) {
+    const { setWheres, values } = await this._filterAll(data);
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity,
+              company_handle AS "companyHandle"
+      FROM jobs
+      ${setWheres}
+      ORDER BY id`,
+      [...values]
+    );
+    return jobsRes.rows;
+  }
 
-/** Given a job id, return data about job.
+  /** Given a job id, return data about job.
    *
    * Returns { id, title, salary, equity, companyHandle }
    *
    * Throws NotFoundError if not found.
    **/
 
- static async get(id) {
-  const jobRes = await db.query(
-    `SELECT id,
+  static async get(id) {
+    const jobRes = await db.query(
+      `SELECT id,
           title,
           salary,
           equity,
           company_handle AS "companyHandle"
          FROM jobs
          WHERE id = $1`,
-    [id]
-  );
+      [id]
+    );
 
-  const job = jobRes.rows[0];
+    const job = jobRes.rows[0];
 
-  if (!job) throw new NotFoundError(`No job by id: ${id}`);
+    if (!job) throw new NotFoundError(`No job by id: ${id}`);
 
-  return job;
-}
-
+    return job;
+  }
 
   /** Update job data with `data`.
    *
@@ -91,8 +93,8 @@ class Job {
    * Throws NotFoundError if not found.
    */
 
-   static async update(id, data) {
-    const { setCols, values } = sqlForPartialUpdate(data, { });
+  static async update(id, data) {
+    const { setCols, values } = sqlForPartialUpdate(data, {});
     const idVarIdx = "$" + (values.length + 1);
 
     const querySql = `
@@ -108,14 +110,12 @@ class Job {
     return job;
   }
 
-
-
   /** Delete given job from database returns deleted id.
    *
    * Throws NotFoundError if job not found.
    **/
 
-   static async remove(id) {
+  static async remove(id) {
     const result = await db.query(
       `DELETE
            FROM jobs
@@ -128,4 +128,21 @@ class Job {
     if (!job) throw new NotFoundError(`No company: ${id}`);
   }
 
+  //{hasEquity : true, minSalary: 10000, title: engineer}
+  static async _filterAll(data) {
+    //question: about booleans
+    if (data.hasEquity) {
+      data.hasEquity = 0;
+    }
+    console.log(data);
+    const { setWheres, values } = sqlForFilter(data, {
+      minSalary: "salary >= ",
+      hasEquity: "equity > ",
+      title: "title ILIKE ",
+    });
+
+    return { setWheres, values };
+  }
 }
+
+module.exports = Job;

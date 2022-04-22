@@ -46,9 +46,17 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
  * Authorization required: none
  */
 
- router.get("/", async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   const request = req.query;
   if (request) {
+    if (request.hasEquity && request.hasEquity.toLowerCase() === "false") {
+      delete request.hasEquity;
+    } else if (
+      request.hasEquity &&
+      request.hasEquity.toLowerCase() === "true"
+    ) {
+      request.hasEquity = true;
+    }
     if (request.minSalary) request.minSalary = Number(request.minSalary);
     const validator = jsonschema.validate(request, jobFilterSchema);
     if (!validator.valid) {
@@ -60,7 +68,6 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
   return res.json({ jobs });
 });
 
-
 /** GET /[id]  =>  { job }
  *
  *  Job is { id, title, salary, equity, companyHandle  }
@@ -68,11 +75,10 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
  * Authorization required: none
  */
 
- router.get("/:id", async function (req, res, next) {
+router.get("/:id", async function (req, res, next) {
   const job = await Job.get(req.params.id);
   return res.json({ job });
 });
-
 
 /** PATCH /[id] { fld1, fld2, ... } => { company }
  *
@@ -85,7 +91,7 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
  * Authorization required: admin
  */
 
- router.patch("/:id", ensureAdminUser, async function (req, res, next) {
+router.patch("/:id", ensureAdminUser, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, jobUpdateSchema);
   if (!validator.valid) {
     const errs = validator.errors.map((e) => e.stack);
@@ -96,16 +102,14 @@ router.post("/", ensureAdminUser, async function (req, res, next) {
   return res.json({ job });
 });
 
-
 /** DELETE /[id]  =>  { deleted: id }
  *
  * Authorization: admin
  */
 
- router.delete("/:id", ensureAdminUser, async function (req, res, next) {
+router.delete("/:id", ensureAdminUser, async function (req, res, next) {
   await Job.remove(req.params.id);
   return res.json({ deleted: req.params.id });
 });
-
 
 module.exports = router;

@@ -53,13 +53,13 @@ class Company {
     const { setWheres, values } = await this._filterAll(data);
     const companiesRes = await db.query(
       `SELECT handle,
-                name,
-                description,
-                num_employees AS "numEmployees",
-                logo_url AS "logoUrl"
-           FROM companies
-           ${setWheres}
-           ORDER BY name`,
+              name,
+              description,
+              num_employees AS "numEmployees",
+              logo_url AS "logoUrl"
+      FROM companies
+      ${setWheres}
+      ORDER BY name`,
       [...values]
     );
     return companiesRes.rows;
