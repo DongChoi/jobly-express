@@ -32,6 +32,7 @@ class Job {
     const job = result.rows[0];
 
     return job;
+
   }
 
   /** Find all jobs.

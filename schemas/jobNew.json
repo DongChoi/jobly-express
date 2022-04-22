@@ -19,7 +19,7 @@
       "companyHandle": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 10
+        "maxLength": 100
       }
     },
     "additionalProperties": false,

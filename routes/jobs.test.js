@@ -69,7 +69,6 @@ describe("POST /jobs", function () {
       })
       .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
-    //test the body as well on 62 too
   });
 
   test("bad request with invalid data", async function () {
@@ -122,7 +121,8 @@ describe("GET /jobs", function () {
       ],
     });
   });
-  //tip: best to have rigorous tests for models than routes
+
+
   test("filters jobs", async function () {
     const respWithtitle = await request(app).get("/jobs/?title=j1");
     const respWithMin = await request(app).get("/jobs/?minSalary=300000");
@@ -264,7 +264,6 @@ describe("GET /jobs/:id", function () {
 /************************************** PATCH /jobs/:id */
 
 describe("PATCH /jobs/:id", function () {
-  /**UPDATING TESTS *****************************************/
   test("does not work for user", async function () {
     const resp = await request(app)
       .patch(`/jobs/1`)
@@ -341,12 +340,6 @@ describe("PATCH /jobs/:id", function () {
 /************************************** DELETE /jobs/:id */
 
 describe("DELETE /jobs/:id", function () {
-  // test("works for users", async function () {
-  //   const resp = await request(app)
-  //     .delete(`/jobs/c1`)
-  //     .set("authorization", `Bearer ${u1Token}`);
-  //   expect(resp.body).toEqual({ deleted: "c1" });
-  // });
   test("does not work for user", async function () {
     const resp = await request(app)
       .delete(`/jobs/1`)

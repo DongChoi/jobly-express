@@ -53,7 +53,6 @@ describe("create", function () {
       fail();
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
-      //test error msg itselfjest -
     }
   });
 });
@@ -219,8 +218,6 @@ describe("get", function () {
   });
 });
 
-/************************************** update */
-
 describe("update", function () {
   const updateData = {
     name: "New",
@@ -330,4 +327,3 @@ describe("remove", function () {
   });
 });
 
-/************************************** findAll */

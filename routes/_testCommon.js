@@ -7,7 +7,6 @@ const { createToken } = require("../helpers/tokens");
 const Job = require("../models/job.js");
 
 async function commonBeforeAll() {
-  //question: what is this
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
   // noinspection SqlWithoutWhere

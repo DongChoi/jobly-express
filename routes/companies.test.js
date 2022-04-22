@@ -65,7 +65,6 @@ describe("POST /companies", function () {
       })
       .set("authorization", `Bearer ${admin1Token}`);
     expect(resp.statusCode).toEqual(400);
-    //test the body as well on 62 too
   });
 
   test("bad request with invalid data", async function () {
@@ -111,7 +110,7 @@ describe("GET /companies", function () {
       ],
     });
   });
-  //tip: best to have rigorous tests for models than routes
+
   test("filters companies", async function () {
     const respWithName = await request(app).get("/companies/?name=C1");
     const respWithMin = await request(app).get("/companies/?minEmployees=2");
@@ -178,7 +177,6 @@ describe("GET /companies", function () {
         },
       ],
     });
-    //question: what is a bearer?
   });
 
   test("throws correst handler", async function () {
@@ -262,7 +260,6 @@ describe("GET /companies/:handle", function () {
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  /**UPDATING TESTS *****************************************/
   test("does not work for user", async function () {
     const resp = await request(app)
       .patch(`/companies/c1`)
@@ -298,7 +295,6 @@ describe("PATCH /companies/:handle", function () {
       name: "C1-new",
     });
     expect(resp.statusCode).toEqual(401);
-    //test body
   });
 
   test("not found on no such company", async function () {
@@ -335,12 +331,6 @@ describe("PATCH /companies/:handle", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  // test("works for users", async function () {
-  //   const resp = await request(app)
-  //     .delete(`/companies/c1`)
-  //     .set("authorization", `Bearer ${u1Token}`);
-  //   expect(resp.body).toEqual({ deleted: "c1" });
-  // });
   test("does not work for user", async function () {
     const resp = await request(app)
       .delete(`/companies/c1`)

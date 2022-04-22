@@ -203,7 +203,6 @@ describe("GET /users", function () {
 /************************************** GET /users/:username */
 
 describe("GET /users/:username", function () {
-// question: how to structure tests
   test("works for users for their own", async function () {
     const resp = await request(app)
       .get(`/users/u1`)
@@ -273,7 +272,7 @@ describe("GET /users/:username", function () {
 
 
 describe("PATCH /users/:username", () => {
- /*********************** UPDATED *************************/
+
   test("works for users to update their own", async function () {
     const resp = await request(app)
       .patch(`/users/u1`)
@@ -345,8 +344,6 @@ describe("PATCH /users/:username", () => {
     expect(resp.statusCode).toEqual(401);
     expect(resp.body.error.message).toEqual("Unauthorized");
   });
-
- /*********************** UPDATED *************************/
 
   test("not found if no such user", async function () {
     const resp = await request(app)
