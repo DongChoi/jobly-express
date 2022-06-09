@@ -1,6 +1,6 @@
 # Jobly Backend
 
-This is the Express backend for Jobly.
+This is the Express API used for Jobly that includes full CRUD capabilities on companies, jobs and users and the option to filter by queries.
 View working demo [here](https://jobly-backend-robyn.herokuapp.com/companies).
 
 ### Technologies
