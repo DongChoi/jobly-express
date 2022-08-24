@@ -10,7 +10,7 @@ View working demo [here](https://jobly-backend-robyn.herokuapp.com/companies).
 - PostgreSQL
 - Jest
 
-_This application was created for an exercise as part of the curriculum by [Rithm School](https://www.rithmschool.com/). The front end was later created as a separate exericsed [here](https://github.com/robynlgy/react-jobly). Pair programmed with [Andrew Choi](https://github.com/DongChoi)._
+_This application was created for an exercise as part of the curriculum by [Rithm School](https://www.rithmschool.com/). The front end was later created as a separate exercise [here](https://github.com/robynlgy/react-jobly). Pair programmed with [Andrew Choi](https://github.com/DongChoi)._
 
 To run this:
 
