@@ -13,6 +13,8 @@ const companiesRoutes = require("./routes/companies");
 const usersRoutes = require("./routes/users");
 const jobsRoutes = require("./routes/jobs");
 
+const { PORT } = require("./config");
+
 const morgan = require("morgan");
 
 const app = express();
@@ -27,6 +29,9 @@ app.use("/companies", companiesRoutes);
 app.use("/users", usersRoutes);
 app.use("/jobs", jobsRoutes);
 
+app.get("/", function (req, res) {
+  res.send("<h1>Hello from Express!</h1>");
+});
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {
@@ -42,6 +47,10 @@ app.use(function (err, req, res, next) {
   return res.status(status).json({
     error: { message, status },
   });
+});
+
+app.listen(PORT, function () {
+  console.log(`App listening on port ${PORT}`);
 });
 
 module.exports = app;
